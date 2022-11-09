@@ -1,72 +1,70 @@
-# Systemy-wbudowane
-```
-#define F_CPU 1000000L
+#define F_CPU 16000000UL
 #include <avr/io.h>
-#include <avr/interrupt.h>
+#include <util/delay.h>
 
+#define LCD PORTA
+#define EN 7
+#define RW 6
+#define RS 5
 
-ISR(TIMER0_OVF_vect){
-	PORTA = ~PORTA;
-	TCNT0 = 0;
+void lcdcmd(unsigned char cmd){
+    PORTD &= ~(1<<RS);   // RS = 0 for command mode
+    // 1                 = 00000 0001
+    // 1<<RS             = 0010 0000
+    // ~(1<<RS)          = 1101 1111
+    // PORTD             = xxxx xxxx
+    //                     1101 1111
+    // PORTD &= ~(1<<RS) = xx0x xxxx
+    PORTD &= ~( 1 << RW );      // RW = 0 for write
+    LCS = cmd & 0xF0;           // Send high [v]
+    PORTD |=  ( 1 << EN );      // EN = 1; High to Low pulse
+    _delay_ms(1);
+    PORTD &=  ~( 1 << EN );     // EN = 0; High to Low pulse
+    LCD = cmd << 4;             // Send low [v]
+    PORTD |= ( 1 << EN );       // EN = 1; High to Low pulse    
+    _delay_ms(1);
+
+    PORTD &= ~( 1 << EN );
 }
 
-int main(void)
-{
-	// Konfiguracja PORTU A
-	DDRA = 255;
-	PORTA = 255;
-
-	// Konfiguracja Timer0 tryb normal, prescaler (s.107-110)
-	TCCR0 |= (0 << WGM01) | (0 << WGM00 );				 //Timer0 8-bit tryb normal
-	TCCR0 |= (1 << CS02 ) | (0 << CS01  ) | (1<< CS00 ); //Timer0 8-bit Prescaler clk/1024
-	
-	// Wartość początkowa dla TCNT0
-	TCNT0 = 0;
-	// Globalne zezwolenie na przerwania
-	sei();
-
-	// Zezwolenie na przerwanie dla wybranego trybu pracy timera (s.112)
-	TIMSK |= (1 << TOIE0);
-	TIFR |= (1 << TOV0); // 00000100
-	int t = 0;
-	while (1)
-	{
-		if (TCNT0 >= 100)
-		{
-			TCNT0 = 0;          // reset counter
-			t++;
-		}
-		if(t >= 10){
-			PORTA = ~PORTA;    // LED swap
-			t=0;
-		}
-	}
+void lcddata(unsigned char data){
+    PORTD |=  (1 << RS);        // RS = 1 for data
+    PORTD &= ~(1 << RW);        // RW = 0 for write
+    LCD = data & 0xF0;          // send high [v]
+    PORTD |=  (1 << EN);        // EN = 1; High to Low pulse
+    _delay_ms(1);
+    PORTD &= ~(1 << EN);        // EN = 0; High to Low pulse
+    LCD = data << 4;            // Send low [v]
+    PORTD |=  (1 << EN);        // EN = 1; High to Low pulse
+    _delay_ms(1);
+    PORTD &= ~(1 << EN);
 }
 
-/*
-#include <avr/io.h> 
-#include <util/delay.h> 
-#define F_CPU 1000000L 
-void odlicz(int il_sekund) { 
-	TCCR0|=(1<<CS00)|(1<<CS02); //ustawienie preskalera 
-	int licz=0; TCNT0=155; //ustawienie wartości początkowej, licznik odmierza do 255 
-	while(licz<=il_sekund*10){ 
-		if(TIFR&=(1<<TOV0)){  //sprawdzenie czy ustawiona została flaga przepełnienia 
-			TIFR|=(1<<TOV0);//zerowanie flagi przepełnienia 
-			TCNT0=155;// ponowne ustawienie wartości początkowej 
-			licz++; 
-		} 
-	}  
-	PORTA = ~PORTA; 
-	TCCR0 = 0x00; 
-} 
-	int main(void) { 
-		DDRA = 0b11111111; 
-		PORTA= 0b11111111;
-		while(1) { 
-			odlicz(1); //wywołanie procedury, w tym przypadku odmierza 5 sekund 
-		} 
-	return 0; 
+void lcd_init(){
+    DDRA = 0xff;                // output port
+    DDRD = 0xff;                // define RS, EN, RW as output
+    PORTD &= ~(1 << EN);        // initialize EN = 0
+    lcdcmd(0x33);
+    lcdcmd(0x32);
+    lcdcmd(0x28);               // LCD 4 bit mode
+    lcdcmd(0x0E);               // display on cursor
+    lcdcmd(0x01);               // clear LCD
+    _delay_ms(2);
 }
-*/
-```
+
+void lcd_print(char *str){
+    unsigned char i = 0;
+    while( str[i] != 0 ){
+        lcddata( str[i] );
+        i++;
+    }
+}
+
+int main(void){
+    lcd_init();
+    lcd_print("Hello world");
+    while(1){
+        
+    }
+    return 0;
+}
