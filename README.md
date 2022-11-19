@@ -10,15 +10,16 @@
 	</tbody>
 </table>
 
-<h1> 1. Odpowiedź na pytanie kontrolne 1 </h1>
+<h3> 1. Odpowiedź na pytanie kontrolne 1 </h3>
 
  
 
-<h1> 2. Odpowiedź na pytanie kontrolne 2 </h1>
+<h3> 2. Odpowiedź na pytanie kontrolne 2 </h3>
 
-<h1> Część praktyczna: </h1>
+<h3> Część praktyczna: </h3>
 
-1. Kod zadania 1.
+<h4> Kod zadania 1 </h4>
+
 ```
 #define F_CPU 8000000UL						/	/ Ustawienie częstotliwości taktowania procesora na 8 MHz
 #define BAUDRATE 9600 							// Ustawienie prędkiści (baud) dla programu Putty
@@ -62,74 +63,24 @@ int main(void){
 }
 
 ```
-
+<img src='https://github.com/Gabrysiewicz/Systemy-wbudowane/blob/sprawozdanie/Zadanie1.png' width=1000>
  
 
-2. Kod zadania 2., Zdjęcie pulpitu z PC z wyświetlonymi komunikatami, opis słowny działania programu (2-3 zdania). 
+<h4> Kod zadania 2 </h4> 
+<h5> Zdjęcie pulpitu z PC z wyświetlonymi komunikatami, opis słowny działania programu (2-3 zdania) </h5> 
 
- 
-
-3. Kod zadania 3, opis działania programu (2-3 zdania).  
-```
-#define F_CPU 8000000UL
-#define BAUDRATE 9600 
-#define BAUD_PRESCALLER (((F_CPU / (BAUDRATE * 16UL))) -1) 
-#include <avr/io.h>
-#include <util/delay.h>
-
-// USART
-void usart_init(void){
-	UBRRH = (uint8_t)(BAUD_PRESCALLER>>8);
-	UBRRL = (uint8_t)(BAUD_PRESCALLER);
-	
-	UCSRB = ( 1 << RXCIE ) | ( 1 << RXEN ) |  ( 1 << TXEN );
-	
-	UCSRC = ( 1 << URSEL ) | ( 1 << UCSZ0 ) | ( 1 << UCSZ1);
-}
-unsigned char usart_RxChar(){
-	while( ( UCSRA & ( 1 << RXC ) ) == 0 );/* Wait till data is received */
-	return(UDR);							/* Return the byte */
-}
-void usart_TxChar(unsigned char znak){
-	while(! (UCSRA & ( 1 << UDRE ) ) );  /* Wait for empty transmit buffer */
-	UDR = znak;
-}
-void usart_string(char *str){
-	unsigned char i = 0;
-	while( str[i] != 0 ){
-		usart_TxChar( str[i] );
-		_delay_ms(10);
-		i++;
-	}
-}
-int main(void){
-	usart_init();
-	usart_string("Kamil Gabrysiewicz");
-	while(1){
-		
-		
-		
-		
-	}
-	return 0;
-}
-
-
-```
-
+<h6> W moim przypadku fragment kodu odpowiedzialny za pobieranie danych nie działał. Cięzko powiedzieć czym mogło to być spowodowane, próbowałem na wiele sposobów. Np. umieszczałem fragmenty kodu w głównej pętli, modyfikowałem Putty, podmieniałem fragmenty kodu na inne, korzystałem z klawiatury ekranowej, ale wciąż u mnie pobranie znaku nie działało. Być może było to spowodowałem tym że AVR był podpięty do komputera przez USB w monitorze (COM4) ale i tak ciężko to stwierdzić. Zapomniałem też o zrobienu screena, ponieważ odczyt nie działał a wyświetlanie nie różniło się od zadania poprzedniego.</h6>
 ```
 int main(void){
-	usart_init();
-	usart_string("Nacisnij klawisz [x]");
-	char userChar = usart_RxChar();
-	if(userChar == 'x'){
+	usart_init();					 		// Wywołanie ww. funkcji inicjalizującej 
+	usart_string("Nacisnij klawisz [x]");				// Wysłánie polecenia na terminal Putty
+	char userChar = usart_RxChar();					// Pobranie znaku od użytkownika i zapis do zmiennej
+	if(userChar == 'x'){						// Sprawczenie poprawnośći otrzynamego znaku
 		usart_string("Good");
 	}else{
 		usart_string("Bad");
 	}
-	while(1){
-		
-		
+	while(1){	
 	}
 	return 0;
 }
