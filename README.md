@@ -20,12 +20,16 @@ Pytanie 1. Jak należy skonfigurować port USART do trybu nadawanie z prędkośc
 #define BAUDRATE 9600 						// Ustawienie prędkiści (baud) dla programu Putty
 #define BAUD_PRESCALLER (((F_CPU / (BAUDRATE * 16UL))) -1)      // Wyznaczenie  zawartości rejestru UBRR 
 ```
+Wewnątrz funkcji inicjalizującej
+```
+UBRRL = (uint8_t)(BAUD_PRESCALLER);
+```
 
 <h3> 2. Odpowiedź na pytanie kontrolne 2 </h3>
 Pytanie 2. W jaki sposób określić moment wysłania kolejnej danej poprzez port USART.
 
 ```
-while( ( UCSRA & ( 1 << RXC ) ) == 0 );				 /* Oczekiwanie na przyjęcie danych */
+while(! (UCSRA & ( 1 << UDRE ) ) );  			/* Oczekiwanie na opróżnienie buffera przekazującego*/
 ```
 
 <h3> Część praktyczna: </h3>
@@ -57,6 +61,12 @@ void usart_TxChar(unsigned char znak){
 	while(! (UCSRA & ( 1 << UDRE ) ) );  			/* Oczekiwanie na opróżnienie buffera przekazującego*/
 	UDR = znak;						// Przypsanie pobranej wartości do rejestru nadawczo odbiorczego UDR
 }
+/* Alternatywna wersja
+void usart_TxChar(){
+	while( (UCSRA & ( 1 << UDRE ) ) == 0 );  		// Oczekiwanie na opróżnienie buffera przekazującego
+	return(UDR);						// Przypsanie pobranej wartości do rejestru nadawczo odbiorczego UDR
+}
+*/
 void usart_string(char *str){					// Funkcja wyświetlająca zadany łańcuch znaków na ekran Putty
 	unsigned char i = 0;
 	_delay_ms(10);						// Delay zapobiegający problemom z wysłaniem pierwszego znaku (czasem sie zdarza)
@@ -98,3 +108,6 @@ int main(void){
 	return 0;
 }
 ```
+
+<h4> Kod zadania 3 </h4>
+<h6> Niestety ze względu na komplikacje i powikłania w zadaniu 2 nie udało mi się tu dotrzeć</h6>
