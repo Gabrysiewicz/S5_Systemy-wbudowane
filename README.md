@@ -1,5 +1,6 @@
 # SAM7
 
+Button
 ```
 #include <targets/AT91SAM7.h>
 void delay(int ms){
@@ -37,8 +38,7 @@ main(){
 }
 ```
 
-Zadanie 2
-
+Switch
 ```
 #include <targets/AT91SAM7.h>
 void delay(int ms){
@@ -76,6 +76,7 @@ main(){
 }
 ```
 
+Clock
 ```
 #include <targets\AT91SAM7.h>
 #include "pcf8833u8_lcd.h"
