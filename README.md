@@ -119,3 +119,49 @@ int main (){
   }
 }
 ```
+Timer
+```
+// Zaproponuj kod programu, w którym bez stosowania przerwaoza pomocą programowego odczytu rejestru TC0_SR, 
+// zmienisz stan linii 20 portu B (na płytce ewaluacyjnej dostępnej w laboratorium: LCD_BL) z częstotliwością 10 Hz 
+// (zmiana stanu podświetlenia LCD co 100 ms). MCK=48MHz. UŻYJ NAJMNIEJSZEGO MOŻLIWEGO DZIELNIKA CZĘSTOTLIWOŚCI MCK. 
+#include <targets\AT91SAM7.h>
+#include <ctl_api.h>
+#include <string.h>
+
+int main(void){
+  int i = 0;
+  int limit = 2000000;
+
+  /* LCD */
+  PMC_PCER = 1 << 3;      // zalaczenie zegara
+
+  PIOB_PER = 1 << 20;     // kontrola kontrolera I/O PIN 65 Kontrolowany przez linie 20
+  PIOB_PER |= 1 << 24;    // kontrola kontrolera I/O PIN 65 Kontrolowany przez linie 24
+
+  PIOB_OER = 1 << 20;     // linia 20 PORT B => wyjscie
+  PIOB_ODR = 1 << 24;     // linia 20 PORT B => wejscie
+  
+  PIOB_SODR = 1 << 20;    // stan lini 20 PORT B => wysokie napiecie // zapalenie LED
+  // PIOB_CODR = 1 << 20; // stan lini 20 PORT B => niskie napiecie // zgaszenie LED
+  
+  PIOB_OWER = 1 << 20;
+  /* TIMER */
+  PMC_PCER = 0;
+  PIOB_OER = 1 << 20;
+  PIOB_OWER = 1 << 20;
+  TC0_CCR = TC0_CCR_CLUDIS;
+  TC0_CMR = 3 | 1 << 14;
+  TC0_RC = 37500;
+  TC0_CCR = 1 << 2 | 1 << 0;
+  while(1){
+    if( TCO_SR & 1 << 4){
+        PIOB_ODSR ^= 1 << 20;
+    }
+//    i++;
+//    if( i >= limit){
+//      i = 0;
+//      PIOB_ODSR ^= 1 << 20;
+//    }
+  }
+}
+```
