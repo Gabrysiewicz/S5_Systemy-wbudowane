@@ -172,6 +172,9 @@ TEMPERATURA
 #include <targets\AT91SAM7.h>
 #include "pcf8833u8_lcd.h"
 #define SWRST 0
+#define SWTRG 2
+#define CLKEN 1
+#define CPCS 4
 int main (){
 
   InitLCD();
@@ -194,7 +197,13 @@ int main (){
     a = ADC_CDR0; 
   }
 
-  TC0_CCR = CLKDIS
+  TC0_CCR = TC0_CCR_CLKDIS;
+  TC0_CMR = 4 | 1 << 14;
+//  TC0_RC = ???;
+  TC0_CCR = CLKEN | 1 << SWTRG;
+  TC0_IER = 1 << CPCS ; // DATASHEET page.402
+// 0.2 = (pres * RC) / MCK
+// RC = (0.2 * MCK) / pres; 9.6 / 1024 = 9375
   LCDPutStr( itoa(a), 50, 50, LARGE, BLACK, WHITE);
 
 
