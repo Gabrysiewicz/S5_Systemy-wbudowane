@@ -48,7 +48,15 @@ Rozdzielczość = [ (5V) / (2^12 - 1) ] = [ 5V / 4095 ] = [ 0,00122V ] lub [ 1,2
 ```
 
 <h3> 5. Odpowiedź na pytanie kontrolne 5 </h3>
-Na  jak  wiele wartości może byd przekonwertowana wartośd napięcia z zakresu od 0V do napięcia referencyjnego w przypadku układu SAM7X256? Jaka jest domyślna rozdzielczośd? Jak zmienid rozdzielczośd?
+Na  jak  wiele wartości może byd przekonwertowana wartośd napięcia z zakresu od 0V do napięcia referencyjnego w przypadku układu SAM7X256? Jaka jest domyślna rozdzielczośd? Jak zmienić rozdzielczośd?
+
+```
+W przypadku układu SAM7X256, przetwornik analogowo-cyfrowy (ADC) ma 12-bitową rozdzielczość. Oznacza to, że jest w stanie przekonwertować wartość napięcia z zakresu od 0V do napięcia referencyjnego na 4096 różnych wartości cyfrowych (2^12).
+
+Domyślnie rozdzielczość przetwornika jest ustawiona na 12 bitów, ale można ją zmienić poprzez odpowiednie konfiguracje rejestrów
+
+Aby zmienić rozdzielczość przetwornika, należy ustawić odpowiedni bit konfiguracyjny w odpowiednim rejestrze, np. ADC_MR
+```
 
 <h3> Część praktyczna: </h3>
 Określenie granicznych wartości liczbowych związanych z napięciem: (odczyt z rozdzielczością 10-bit)
