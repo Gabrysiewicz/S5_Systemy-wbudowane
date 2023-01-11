@@ -165,3 +165,38 @@ int main(void){
   }
 }
 ```
+
+TEMPERATURA
+
+```
+#include <targets\AT91SAM7.h>
+#include "pcf8833u8_lcd.h"
+#define SWRST 0
+int main (){
+
+  InitLCD();
+  SetContrast(30);
+  LCDClearScreen();
+
+  LCDPutStr("..............", 10, 20, LARGE, BLACK, WHITE);
+  
+  // The programmer must first enable the PWM clock in the Power Management Controller (PMC) before using the PWM
+//  PMC_PCER = 1 << 2; // PIOA
+  PMC_PCER = 1 << 3; // PIOB; DATASHEET page.30 
+
+  PMC_PCER = 1 << 17; // ADC; DATASHEET page.30
+  ADC_CR = 1 << SWRST; // reset; DATASHEET page.471
+  ADC_MR = 1 << 0; // ???, DATASHEET page.472
+  ADC_CHER = 1 << 0; // ???, DATASHEET page.474
+  ADC_CR = ADC_CR_START;
+  int a = -1;
+  if ( ADC_SR_EOC0 == 1 ){
+    a = ADC_CDR0; 
+  }
+
+  TC0_CCR = CLKDIS
+  LCDPutStr( itoa(a), 50, 50, LARGE, BLACK, WHITE);
+
+
+}
+```
